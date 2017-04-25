@@ -33,12 +33,10 @@ module.exports.createSession = (req, res, next) => {
       if (!session) {
         throw session;
       }
-      // verify token; if invalid, throw to create new session
       if (!models.Sessions.compare(agent, session.hash, session.salt)) {
         return models.Sessions.delete({ hash: session.hash }).throw(agent);
       }
     })
-    // initializes a new session
     .catch(() => {
       return models.Sessions.create({ agent })
         .then(results => {

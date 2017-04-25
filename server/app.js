@@ -100,31 +100,31 @@ app.get('/login', function(req, res) {
   res.render('login');
 });
 
-// app.post('/login', function(req, res, next) {
-//   var username = req.body.username;
-//   var password = req.body.password;
+app.post('/login', function(req, res, next) {
+  var username = req.body.username;
+  var password = req.body.password;
 
-//   Users.findOne(username)
-//     .then(function(user) {
-//       if (!user || !util.compareHash(password, user.password, user.salt)) {
-//         throw new Error('Invalid Username or password');
-//       }
-//       return Sessions.assignSession(user, req.session.hash);
-//     })
-//     .then(function() {
-//       res.redirect('/');
-//     })
-//     .error(function(error) {
-//       next({ status: 500, error: error });
-//     })
-//     .catch(function(user) {
-//       res.redirect('/login');
-//     });
-// });
+  Users.findOne(username)
+    .then(function(user) {
+      if (!user || !util.compareHash(password, user.password, user.salt)) {
+        throw new Error('Invalid Username or password');
+      }
+      return Sessions.assignSession(user, req.session.hash);
+    })
+    .then(function() {
+      res.redirect('/');
+    })
+    .error(function(error) {
+      next({ status: 500, error: error });
+    })
+    .catch(function(user) {
+      res.redirect('/login');
+    });
+});
 
-// app.get('/signup', function(req, res) {
-//   res.render('signup');
-// });
+app.get('/signup', function(req, res) {
+  res.render('signup');
+});
 
 
 
@@ -156,26 +156,6 @@ app.post('/signup', function(req, res, next) {
     });
 });
 
-//   Users.lookupUser(username)
-//     .then(function(user) {
-//       if (user) {
-//         throw new Error('User exists');
-//       }
-//       return Users.createNewUser({ username: username, password: password });
-//     })
-//     .then(function(user) {
-//       return Sessions.assignSession(user, req.session.hash);
-//     })
-//     .then(function() {
-//       res.redirect('/');
-//     })
-//     .error(function(error) {
-//       next({ status: 500, error: error });
-//     })
-//     .catch(function() {
-//       res.redirect('/signup');
-//     });
-// });
 
 
 app.get('/testgetuser', (req, res, next) => {
@@ -218,30 +198,6 @@ app.get('/:code', (req, res, next) => {
 });
 
 
-// app.get('/*', function(req, res, next) {
-//   var code = req.params[0];
-//   var link;
-//   return Links.getOne({ type: 'code', data: code })
-//   .then(function(result) {
-//     link = result;
-//     if (!link) {
-//       throw new Error('Link does not exist');
-//     }
-//     return Click.addClick(link.id);
-//   })
-//   .then(function() {
-//     return Links.incrementVisit(link);
-//   })
-//   .then(function() {
-//     res.redirect(link.url);
-//   })
-//   .error(function(error) {
-//     next({ status: 500, error: error });
-//   })
-//   .catch(function(err) {
-//     res.redirect('/');
-//   });
-// });
 
 
 module.exports = app;
