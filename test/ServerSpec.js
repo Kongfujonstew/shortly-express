@@ -40,14 +40,14 @@ describe('', function() {
     /*************************************************************************************/
     db = mysql.createConnection({
       user: 'root',
-      password: 'plantlife',
+      password: '',
       database: 'shortly'
     });
 
     /**************************************************************************************/
     /* TODO: If you create a new MySQL tables, add it to the tablenames collection below. */
     /**************************************************************************************/
-    var tablenames = ['links', 'clicks'];
+    var tablenames = ['links', 'clicks', 'users', 'sessions'];
 
     db.connect(function(err) {
       if (err) { return done(err); }
@@ -62,15 +62,15 @@ describe('', function() {
   });
 
   describe('Database Schema:', function() {
-    // it('contains a users table', function(done) {
-    //   var queryString = 'SELECT * FROM users';
-    //   db.query(queryString, function(err, results) {
-    //     if (err) { return done(err); }
+    it('contains a users table', function(done) {
+      var queryString = 'SELECT * FROM users';
+      db.query(queryString, function(err, results) {
+        if (err) { return done(err); }
 
-    //     expect(results).to.deep.equal([]);
-    //     done();
-    //   });
-    // });
+        expect(results).to.deep.equal([]);
+        done();
+      });
+    });
 
     it('contains id, username, password, timestamp columns', function(done) {
       var newUser = {
@@ -89,20 +89,20 @@ describe('', function() {
       });
     });
 
-    // it('only allows unique usernames', function(done) {
-    //   var newUser = {
-    //     username: 'Howard',
-    //     password: 'p@ssw0rd'
-    //   };
-    //   db.query('INSERT INTO users SET ?', newUser, function(err, results) {
-    //     var sameUser = newUser;
-    //     db.query('INSERT INTO users SET ?', sameUser, function(err) {
-    //       expect(err).to.exist;
-    //       expect(err.code).to.equal('ER_DUP_ENTRY');
-    //       done();
-    //     });
-    //   });
-    // });
+    it('only allows unique usernames', function(done) {
+      var newUser = {
+        username: 'Howard',
+        password: 'p@ssw0rd'
+      };
+      db.query('INSERT INTO users SET ?', newUser, function(err, results) {
+        var sameUser = newUser;
+        db.query('INSERT INTO users SET ?', sameUser, function(err) {
+          expect(err).to.exist;
+          expect(err.code).to.equal('ER_DUP_ENTRY');
+          done();
+        });
+      });
+    });
 
     it('should increment the id of new rows', function(done) {
       var newUser = {
@@ -140,6 +140,7 @@ describe('', function() {
         var queryString = 'SELECT * FROM users where username = "Samantha"';
         db.query(queryString, function(err, rows) {
           if (err) { done(err); }
+          console.log(rows);
           var user = rows[0];
           expect(user).to.exist;
           expect(user.username).to.equal('Samantha');

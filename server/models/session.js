@@ -30,3 +30,21 @@ const Model = require('./model');
 //   }
 
 // }
+
+
+
+var db = require('../db');
+
+
+var assignSession = function(user, sessionHash) {
+  console.log('2 place __________________');
+  var queryString = 'UPDATE sessions SET user_id = ? WHERE hash = ?';
+  return db.queryAsync(queryString, [user.id, sessionHash]).return(user);
+};
+
+
+
+module.exports = {
+
+  assignSession: assignSession,
+};

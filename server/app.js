@@ -6,21 +6,24 @@ const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
 const models = require('./models');
 const morgan = require('morgan');
-const app = express();
 
 const User = require('./models/user.js');
+const Links = require('./models/link.js');
+const Sessions = require('./models/session.js');
+const Click = require('./models/click.js');
+
+const app = express();
 
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
 app.use(partials());
-// Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
-// Parse forms (signup/login)
-app.use(bodyParser.urlencoded({ extended: true }));
-// Serve static files from ../public directory
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(bodyParser.urlencoded({ extended: true })); //rs
+app.use(express.static(path.join(__dirname, '../public'))); 
 
 app.use(morgan('dev'));
+
+
 
 
 app.get('/', 
@@ -48,7 +51,6 @@ app.post('/links',
 (req, res, next) => {
   var url = req.body.url;
   if (!models.Links.isValidUrl(url)) {
-    // send back a 404 if link is not valid
     return res.sendStatus(404);
   }
 
@@ -84,27 +86,48 @@ app.post('/links',
 // Write your authentication routes here
 /************************************************************/
 
-app.post('/signup', (req, res, next) => {
-  console.log('from signup post handler: ', req.body);
 
-  var hash = utils.createHash(req.body.password);
- 
-  User.createNewUser(req, res, hash, next);
-  console.log('app post signup complete');  
+app.get('/login', function(req, res) {
+  res.render('login');
 });
 
 
-app.post('/login', (req, res, next) => {
 
 
+app.post('/signup', function(req, res, next) {
+  var username = req.body.username;
+  var password = req.body.password;
+
+  User.lookupUser(username)
+    .then(function(user) {
+      if (user === undefined) {
+        // throw new Error('Error on create: ' + user.username + ' user has account');
+        return User.createNewUser(username, password);
+      }
+    })
+    .then(function(user) {
+      console.log('about to call assignSession, user: ', user);//, ' hash: ', req.session.hash);
+
+      return Sessions.assignSession(user, req.session.hash); //what are the inputos here?
+    })
+    .then(function() {
+      res.redirect('/');
+    })
+    .error(function(error) {
+      console.log('error on post to sign up');
+    })
+    .catch(function() {
+      res.redirect('/signup');
+    });
 });
+
+
 
 app.get('/testgetuser', (req, res, next) => {
   console.log('testgetuser get received');
   User.lookupUser(req, res, next);
 
 });
-
 
 
 
@@ -138,5 +161,32 @@ app.get('/:code', (req, res, next) => {
       res.redirect('/');
     });
 });
+
+
+// app.get('/*', function(req, res, next) {
+//   var code = req.params[0];
+//   var link;
+//   return Links.getOne({ type: 'code', data: code })
+//   .then(function(result) {
+//     link = result;
+//     if (!link) {
+//       throw new Error('Link does not exist');
+//     }
+//     return Click.addClick(link.id);
+//   })
+//   .then(function() {
+//     return Links.incrementVisit(link);
+//   })
+//   .then(function() {
+//     res.redirect(link.url);
+//   })
+//   .error(function(error) {
+//     next({ status: 500, error: error });
+//   })
+//   .catch(function(err) {
+//     res.redirect('/');
+//   });
+// });
+
 
 module.exports = app;
