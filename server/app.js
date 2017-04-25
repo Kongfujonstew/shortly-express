@@ -86,9 +86,28 @@ app.post('/links',
 
 app.post('/signup', (req, res, next) => {
   console.log('from signup post handler: ', req.body);
-  User.createNewUser(req, res, next);
+
+  var hash = utils.createHash(req.body.password);
+ 
+  User.createNewUser(req, res, hash, next);
+  console.log('app post signup complete');  
+});
+
+
+app.post('/login', (req, res, next) => {
+
 
 });
+
+app.get('/testgetuser', (req, res, next) => {
+  console.log('testgetuser get received');
+  User.lookupUser(req, res, next);
+
+});
+
+
+
+
 
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
