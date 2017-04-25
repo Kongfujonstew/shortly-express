@@ -54,4 +54,42 @@ module.exports = new User();
 ///////////////////////////////////////////////////////
 //////////////////
 
+// var db = require('../db');
+// var utils = require('../lib/utility');
+
+// // Write you user database model methods here
+// var findOne = function(username) {
+//   var queryString = 'SELECT * FROM users WHERE username = ?';
+
+//   return db.queryAsync(queryString, username).then(function(results) {
+//     return results[0][0];
+//   });
+// };
+
+// var createOne = function(user) {
+  // var timestamp = Date.now();
+  // var salt = utils.createSalt(timestamp);
+
+  // var newUser = {
+  //   username: username,
+  //   password: utils.createHash(password, salt),
+  //   salt: salt
+  // };
+
+  // var queryString = 'INSERT INTO users SET ?';
+  // return db.queryAsync(queryString, newUser).then(function(results) {
+  //   return {
+  //     id: results[0].insertId,
+  //     username: newUser.username
+  //   };
+  // });
+// };
+
+// module.exports = {
+//   findOne: findOne,
+//   createOne: createOne
+// };
+
+
+
 

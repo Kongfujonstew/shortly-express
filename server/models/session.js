@@ -1,50 +1,43 @@
 const utils = require('../lib/hashUtils');
 const Model = require('./model');
-
-// Write your session database model methods here
-
-// class Session extends Model {
-//   constructor () {
-//     super();
-//   }
-
-//   checkSessionValid (sessionId, callback) {
-//     query = `select * from sessions where session = "${sessionId}"`;
-//     return db.query(query,)
-
-//   }
-
-
-//   createNewSession () {
-
-//   }
-
-
-//   beginSession () {
-
-//   }
-
-
-//   endSession () {
-
-//   }
-
-// }
+const User = require('./user');
 
 
 
-var db = require('../db');
 
+class Sessions extends Model {
+  constructor() {
+    super('sessions');
+  }
 
-var assignSession = function(user, sessionHash) {
-  console.log('2 place __________________');
-  var queryString = 'UPDATE sessions SET user_id = ? WHERE hash = ?';
-  return db.queryAsync(queryString, [user.id, sessionHash]).return(user);
-};
+  isLoggedIn(session) {
+    return !!session.username;
+  }
 
+  compare(agent, hash, salt) {
+    return utils.compareHash(agent, hash, salt);
+  }
 
+  get(options) {
+    return super.get.call(this, options)
+      .then(session => {
+        if (!session || !session.user_id) {
+          return session;
+        }
 
-module.exports = {
+        return Users.get({ id: session.user_id }).then(user => {
+          session.username = user.username;
+          return session;
+        });
+      });
+  }
 
-  assignSession: assignSession,
-};
+  create({ agent }) {
+    var salt = utils.createSalt();
+    var hash = utils.createHash(agent, salt);
+
+    return super.create.call(this, { hash, salt });
+  }
+}
+
+module.exports = new Sessions();

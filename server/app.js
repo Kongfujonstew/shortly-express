@@ -24,19 +24,28 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(morgan('dev'));
 
 
+app.use(Auth.createSession);
+
+app.use(require('./middleware/cookieParser'));
+app.use(require('./middleware/sessionParser'));
 
 
-app.get('/', 
+// app.get('/', util.checkUser, function(req, res) { //all / /create and /links are check
+//   res.render('index');
+// });
+
+
+app.get('/',  Auth.verifySession,
 (req, res) => {
   res.render('index');
 });
 
-app.get('/create', 
+app.get('/create',  Auth.verifySession,
 (req, res) => {
   res.render('index');
 });
 
-app.get('/links', 
+app.get('/links',  Auth.verifySession,
 (req, res, next) => {
   models.Links.getAll()
     .then(links => {
@@ -47,7 +56,7 @@ app.get('/links',
     });
 });
 
-app.post('/links', 
+app.post('/links', Auth.verifySession,
 (req, res, next) => {
   var url = req.body.url;
   if (!models.Links.isValidUrl(url)) {
@@ -91,6 +100,31 @@ app.get('/login', function(req, res) {
   res.render('login');
 });
 
+// app.post('/login', function(req, res, next) {
+//   var username = req.body.username;
+//   var password = req.body.password;
+
+//   Users.findOne(username)
+//     .then(function(user) {
+//       if (!user || !util.compareHash(password, user.password, user.salt)) {
+//         throw new Error('Invalid Username or password');
+//       }
+//       return Sessions.assignSession(user, req.session.hash);
+//     })
+//     .then(function() {
+//       res.redirect('/');
+//     })
+//     .error(function(error) {
+//       next({ status: 500, error: error });
+//     })
+//     .catch(function(user) {
+//       res.redirect('/login');
+//     });
+// });
+
+// app.get('/signup', function(req, res) {
+//   res.render('signup');
+// });
 
 
 
@@ -100,15 +134,16 @@ app.post('/signup', function(req, res, next) {
 
   User.lookupUser(username)
     .then(function(user) {
-      if (user === undefined) {
-        // throw new Error('Error on create: ' + user.username + ' user has account');
-        return User.createNewUser(username, password);
+      if (user) {
+        throw new Error('Error on create: user has account');
       }
+      return User.createNewUser(username, password);
     })
-    .then(function(user) {
-      console.log('about to call assignSession, user: ', user);//, ' hash: ', req.session.hash);
+    .then(function(results) {
 
-      return Sessions.assignSession(user, req.session.hash); //what are the inputos here?
+      console.log('_____________________________ ', results);
+      // console.log(req.session);//, ' hash: ', req.session.hash);
+      // return models.Sessions.update({ hash: req.session.hash }, { user_id: results.insertId }); //what are the inputos here?
     })
     .then(function() {
       res.redirect('/');
@@ -121,6 +156,26 @@ app.post('/signup', function(req, res, next) {
     });
 });
 
+//   Users.lookupUser(username)
+//     .then(function(user) {
+//       if (user) {
+//         throw new Error('User exists');
+//       }
+//       return Users.createNewUser({ username: username, password: password });
+//     })
+//     .then(function(user) {
+//       return Sessions.assignSession(user, req.session.hash);
+//     })
+//     .then(function() {
+//       res.redirect('/');
+//     })
+//     .error(function(error) {
+//       next({ status: 500, error: error });
+//     })
+//     .catch(function() {
+//       res.redirect('/signup');
+//     });
+// });
 
 
 app.get('/testgetuser', (req, res, next) => {
