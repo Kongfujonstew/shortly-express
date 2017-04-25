@@ -29,6 +29,10 @@ class Links extends Model {
 
     return super.create.call(this, link);
   }
+
+  chasm() {
+    console.log('pgsfly');
+  }
 }
 
 module.exports = new Links();

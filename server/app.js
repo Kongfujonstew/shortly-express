@@ -5,8 +5,10 @@ const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
 const models = require('./models');
-
+const morgan = require('morgan');
 const app = express();
+
+const User = require('./models/user.js');
 
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
@@ -17,6 +19,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files from ../public directory
 app.use(express.static(path.join(__dirname, '../public')));
+
+app.use(morgan('dev'));
 
 
 app.get('/', 
@@ -80,7 +84,11 @@ app.post('/links',
 // Write your authentication routes here
 /************************************************************/
 
+app.post('/signup', (req, res, next) => {
+  console.log('from signup post handler: ', req.body);
+  User.createNewUser(req, res, next);
 
+});
 
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail

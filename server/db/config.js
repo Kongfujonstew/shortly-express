@@ -23,7 +23,29 @@ module.exports = (db) => {
           id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
           linkId INT,
           timestamp TIMESTAMP
-        );`);
+        );`)
+      .then(() => {
+
+        return db.queryAsync(`
+          CREATE TABLE IF NOT EXISTS users (
+          id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+          username VARCHAR(255) NOT NULL UNIQUE,
+          password VARCHAR(255) NOT NULL,
+          timestamp TIMESTAMP,
+          salt VARCHAR(40)
+          );`)
+
+        .then(() => {
+
+          return db.queryAsync(`
+            CREATE TABLE IF NOT EXISTS sessions (
+            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            linkId INT
+            );`);
+
+        });
+    
+      });
     })
   /************************************************************/
   /*          Add additional schema queries here              */
