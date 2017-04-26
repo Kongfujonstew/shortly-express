@@ -30,10 +30,6 @@ app.use(require('./middleware/cookieParser'));
 app.use(require('./middleware/sessionParser'));
 
 
-// app.get('/', util.checkUser, function(req, res) { //all / /create and /links are check
-//   res.render('index');
-// });
-
 
 app.get('/',  Auth.verifySession,
 (req, res) => {

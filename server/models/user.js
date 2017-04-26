@@ -36,7 +36,6 @@ class User extends Model {
   lookupUser(username) {
     var query = `SELECT * FROM users where username = "${username}"`;
     return db.queryAsync(query).then(function(results) {
-      // console.log('hre is results in lookUpUser for username ', username, ' :', results);
       return results[0][0];
     });
   }
